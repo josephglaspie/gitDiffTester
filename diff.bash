@@ -2,14 +2,16 @@
 branch=""
 
 function diff() {
+    echo "starting"
     git_status
     difflists
     set_buildkite
+    echo "ending"
 }
 
 function git_status() {
 
-    if [[ "${BUILDKITE_BRANCH}" == "main" ]]; then 
+    if [[ "${BUILDKITE_BRANCH}" == "main" ]]; then
         branch=HEAD~1
         git_output=$(git --no-pager diff --name-status $branch)
     else
@@ -56,34 +58,16 @@ function difflists() {
                 ;;
             # renamed
             R)
-                # get renamed files
-                all_renamed_files=$(git --no-pager diff --name-status $branch | grep '^R')
-                # Create a variable to hold each line
-                while IFS= read -r line; do
-                    old_filename=$(echo "$line" | awk '{print $2}')
-                    new_filename=$(echo "$line" | awk '{print $3}')
-                
-                    diffs=$(git diff $branch -- $old_filename $new_filename)
-                
-                if [[ ! $diffs ]]; then
-                    echo "No updates to $new_filename"
-                else
-                    MODIFIED_FILES+="${new_filename},"
-                fi
-                
-                done <<< "$all_renamed_files"
-                # TODO: check tfc-managment to see what happens to "disreguarded file names". Also if [[ "${BUILDKITE_BRANCH}" == "main"
-                # check if renamed files had any updates to them, if yes add to MODIFIED_FILES else disreguard them
+                results=$(process_renamed_files "$branch" "$line")
+                echo "renamed and modified file: $results"
+                MODIFIED_FILES+="${results},"
+                ;;
             # default
             *)
                 echo "not recognized...skipping"
                 ;;
         esac
     done
-
-
-
-
 
     IFS=$OLDIFS
 
@@ -136,3 +120,20 @@ function set_buildkite() {
         fi
     fi
 }
+
+function process_renamed_files() {
+#checks if renamed file has been modified, if so, add to the modified list
+    local branch="$1"
+    local line="$2"
+
+         old_filename=$(echo "$line" | awk '{print $2}')
+         new_filename=$(echo "$line" | awk '{print $3}')
+
+         diffs=$(git diff "$branch" -- "$old_filename" "$new_filename")
+
+        if [[ $diffs ]]; then
+          echo "$new_filename"
+        fi
+}
+
+diff
