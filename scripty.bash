@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+branch=""
 
 function diff() {
     git_status
@@ -9,9 +10,11 @@ function diff() {
 function git_status() {
 
     if [[ "${BUILDKITE_BRANCH}" == "main" ]]; then 
-        git_output=$(git --no-pager diff --name-status HEAD~1)
+        branch=HEAD~1
+        git_output=$(git --no-pager diff --name-status $branch)
     else
-        git_output=$(git --no-pager diff --name-status main)
+        branch=main
+        git_output=$(git --no-pager diff --name-status $branch)
     fi
 
     echo "${git_output}"
@@ -51,12 +54,36 @@ function difflists() {
                 echo "modified existing file ${file}"
                 MODIFIED_FILES+="${file},"
                 ;;
+            # renamed
+            R)
+                # get renamed files
+                all_renamed_files=$(git --no-pager diff --name-status $branch | grep '^R')
+                # Create a variable to hold each line
+                while IFS= read -r line; do
+                    old_filename=$(echo "$line" | awk '{print $2}')
+                    new_filename=$(echo "$line" | awk '{print $3}')
+                
+                    diffs=$(git diff $branch -- $old_filename $new_filename)
+                
+                if [[ ! $diffs ]]; then
+                    echo "No updates to $new_filename"
+                else
+                    MODIFIED_FILES+="${new_filename},"
+                fi
+                
+                done <<< "$all_renamed_files"
+                # TODO: check tfc-managment to see what happens to "disreguarded file names". Also if [[ "${BUILDKITE_BRANCH}" == "main"
+                # check if renamed files had any updates to them, if yes add to MODIFIED_FILES else disreguard them
             # default
             *)
                 echo "not recognized...skipping"
                 ;;
         esac
     done
+
+
+
+
 
     IFS=$OLDIFS
 
