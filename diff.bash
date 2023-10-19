@@ -2,11 +2,9 @@
 branch=""
 
 function diff() {
-    echo "starting"
     git_status
     difflists
     set_buildkite
-    echo "ending"
 }
 
 function git_status() {
@@ -58,8 +56,8 @@ function difflists() {
                 ;;
             # renamed
             R)
-                results=$(process_renamed_files "$branch" "$line")
-                echo "renamed and modified file: $results"
+                echo "Renames"
+                process_renamed_files "$branch" "$line"
                 ;;
             # default
             *)
