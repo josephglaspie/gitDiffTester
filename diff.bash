@@ -25,9 +25,9 @@ function git_status() {
 function difflists() {
 
     # lists to store diffs
-    declare -g ADDED_FILES
-    declare -g DELETED_FILES
-    declare -g MODIFIED_FILES
+    ADDED_FILES=""
+    DELETED_FILES=""
+    MODIFIED_FILES=""
 
 
     git_output=$(git_status)
