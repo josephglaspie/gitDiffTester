@@ -1,14 +1,9 @@
 #!/bin/bash
 
-# Define a function that takes multiple parameters
-function print_parameters() {
-    echo "Parameters: $1 $2 $3"
-}
+string="Some text with similarity index 100 in it."
 
-# Call the function with multiple parameters
-echo "this is it alone"
-print_parameters "Apple" "Banana" "Cherry"
-
-result=$(print_parameters "Apple" "Banana" "Cherry")
-echo "this is it as a variable"
-echo $result
+if [[ $string == *"similarity index 100"* ]]; then
+    echo "The string contains 'similarity index 100'."
+else
+    echo "The string does not contain 'similarity index 100'."
+fi

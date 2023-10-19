@@ -119,16 +119,22 @@ function process_renamed_files() {
     local branch="$1"
     local line="$2"
 
+
          old_filename=$(echo "$line" | awk '{print $2}')
          new_filename=$(echo "$line" | awk '{print $3}')
 
          diffs=$(git diff "$branch" -- "$old_filename" "$new_filename")
+         echo
+         echo "DIFFS"
+         echo $diffs
+         echo "after diffs"
+         echo 
 
-        if [[ $diffs ]]; then
+        if [[ -n $diff && $diff == *"similarity index 100"* ]]; then
+            echo "Renamed but not updated"
+        else
             MODIFIED_FILES+="${new_filename},"
             echo "updated: $new_filename"
-        else
-            echo "Renamed but not updated"
         fi
 }
 
