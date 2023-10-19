@@ -33,11 +33,7 @@ function difflists() {
     do
         #chop status
         file=$(echo "${line}" | awk '{ print $2 }')
-        # only process yaml or yml files in workspaces/
-        if [[ ("${file}" != *.yaml* && "${file}" != *.yml*)]]
-        then
-            continue
-        fi
+
 
         case "${line::1}" in
             # added
