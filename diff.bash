@@ -60,7 +60,6 @@ function difflists() {
             R)
                 results=$(process_renamed_files "$branch" "$line")
                 echo "renamed and modified file: $results"
-                MODIFIED_FILES+="${results},"
                 ;;
             # default
             *)
@@ -132,7 +131,10 @@ function process_renamed_files() {
          diffs=$(git diff "$branch" -- "$old_filename" "$new_filename")
 
         if [[ $diffs ]]; then
-          echo "$new_filename"
+            MODIFIED_FILES+="${new_filename},"
+            echo "updated: $new_filename"
+        else
+            echo "Renamed but not updated"
         fi
 }
 
